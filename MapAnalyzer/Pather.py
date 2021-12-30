@@ -4,7 +4,7 @@ import numpy as np
 
 from loguru import logger
 from numpy import ndarray
-from sc2.ids.unit_typeid import UnitTypeId as UnitID
+from sc2.ids.unit_typeid import UnitTypeId
 from sc2.position import Point2
 
 from MapAnalyzer.exceptions import OutOfBoundsException, PatherNoPointsException
@@ -135,8 +135,8 @@ class MapAnalyzerPather:
         nonpathables = self.map_data.bot.structures.not_flying
         nonpathables.extend(self.map_data.bot.enemy_structures.not_flying)
         nonpathables = nonpathables.filter(
-            lambda x: (x.type_id != UnitID.SUPPLYDEPOTLOWERED or x.is_active)
-                      and (x.type_id != UnitID.CREEPTUMOR or not x.is_ready))
+            lambda x: (x.type_id != UnitTypeId.SUPPLYDEPOTLOWERED or x.is_active)
+                      and (x.type_id != UnitTypeId.CREEPTUMOR or not x.is_ready))
 
         for obj in nonpathables:
             size = 1
