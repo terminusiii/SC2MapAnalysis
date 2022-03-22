@@ -203,7 +203,11 @@ class MapAnalyzerDebugger:
         plt.style.use("ggplot")
         plt.imshow(self.map_data.region_grid.astype(float), origin="lower")
         plt.imshow(self.map_data.terrain_height, alpha=1, origin="lower", cmap="terrain")
-        x, y = zip(*self.map_data.nonpathable_indices_stacked)
+        nonpathable_indices = np.where(self.map_data.path_arr == 0)
+        nonpathable_indices_stacked = np.column_stack(
+            (nonpathable_indices[1], nonpathable_indices[0])
+        )
+        x, y = zip(*nonpathable_indices_stacked)
         plt.scatter(x, y, color="grey")
         ax = plt.gca()
         for tick in ax.xaxis.get_major_ticks():

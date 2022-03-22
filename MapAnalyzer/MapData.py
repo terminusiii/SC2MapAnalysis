@@ -60,8 +60,6 @@ class MapData:
         self._vision_blockers: Set[Point2] = bot.game_info.vision_blockers
 
         # data that will be generated and cached
-        self.min_region_area = MIN_REGION_AREA
-        self.max_region_area = MAX_REGION_AREA
         self.regions: dict = {}  # set later
         self.region_grid: Optional[ndarray] = None
         self.corners: list = []  # set later
@@ -87,7 +85,6 @@ class MapData:
         self.pather = MapAnalyzerPather(self)
 
         self.connectivity_graph = None  # set by pather
-        self.nonpathable_indices_stacked = self.pather.nonpathable_indices_stacked
 
         # compile
         if not self.arcade:
@@ -723,13 +720,6 @@ class MapData:
     """ longest map compile is 1.9 s """
     """Compile methods"""
 
-    def _clean_plib_chokes(self) -> None:
-        # needs to be called AFTER MDramp and VisionBlocker are populated
-        areas = self.map_ramps.copy()
-        areas.extend(self.map_vision_blockers)
-        self.overlapping_choke_ids = self._get_overlapping_chokes(local_chokes=self.c_ext_map.chokes,
-                                                                  areas=areas)
-
     @staticmethod
     def _get_overlapping_chokes(local_chokes: List[CMapChoke],
                                 areas: Union[List[MDRamp], List[Union[MDRamp, VisionBlockerArea]]]) -> Set[int]:
@@ -742,16 +732,23 @@ class MapData:
         return set(result)
 
     def _clean_polys(self) -> None:
-        for pol in self.polygons:
-
-            if pol.area > self.max_region_area:
-                self.polygons.pop(self.polygons.index(pol))
+        i = 0
+        while i < len(self.polygons):
+            pol = self.polygons[i]
+            if not MAX_REGION_AREA > pol.area > MIN_REGION_AREA:
+                self.polygons.pop(i)
+                continue
             if pol.is_choke:
+                ramp_found = False
+                for area in pol.areas:
+                    if isinstance(area, MDRamp):
+                        ramp_found = True
+                        break
+                if ramp_found:
+                    self.polygons.pop(i)
+                    continue
 
-                for a in pol.areas:
-
-                    if isinstance(a, MDRamp):
-                        self.polygons.pop(self.polygons.index(pol))
+            i += 1
 
     @progress_wrapped(estimated_time=0, desc=f"\u001b[32m Version {__version__} Map Compilation Progress \u001b[37m")
     def _compile_map(self) -> None:
@@ -837,11 +834,12 @@ class MapData:
 
     def _calc_chokes(self) -> None:
         # compute ChokeArea
-
-        self._clean_plib_chokes()
-        chokes = [c for c in self.c_ext_map.chokes if c.id not in self.overlapping_choke_ids]
         self.map_chokes = self.map_ramps.copy()
         self.map_chokes.extend(self.map_vision_blockers)
+
+        overlapping_choke_ids = self._get_overlapping_chokes(local_chokes=self.c_ext_map.chokes,
+                                                                  areas=self.map_chokes)
+        chokes = [c for c in self.c_ext_map.chokes if c.id not in overlapping_choke_ids]
 
         for choke in chokes:
 
@@ -874,11 +872,7 @@ class MapData:
     def _calc_regions(self) -> None:
         # compute Region
 
-        # some areas are with area of 1, 2 ,5   these are not what we want,
-        # so we filter those out
-        # if len(self.map_ramps) == 0:
-        #     self._set_map_ramps()
-        pre_regions = {}
+        label_count = 0
         for i in range(len(self.regions_labels)):
             region = Region(
                     array=np.where(self.region_grid == i, 1, 0).T,
@@ -886,16 +880,10 @@ class MapData:
                     map_data=self,
                     map_expansions=self.base_locations,
             )
-            pre_regions[i] = region
-            # gather the regions that are bigger than self.min_region_area
-        j = 0
-        for region in pre_regions.values():
-
-            if self.max_region_area > region.area > self.min_region_area:
-                region.label = j
-                self.regions[j] = region
-                # region.calc_ramps()
-                j += 1
+            if MAX_REGION_AREA > region.area > MIN_REGION_AREA:
+                region.label = label_count
+                self.regions[label_count] = region
+                label_count += 1
 
     """Plot methods"""
 

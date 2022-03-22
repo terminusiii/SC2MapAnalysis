@@ -46,10 +46,6 @@ class MapAnalyzerPather:
     def __init__(self, map_data: "MapData") -> None:
         self.map_data = map_data
 
-        nonpathable_indices = np.where(self.map_data.bot.game_info.pathing_grid.data_numpy == 0)
-        self.nonpathable_indices_stacked = np.column_stack(
-                (nonpathable_indices[1], nonpathable_indices[0])
-        )
         self.connectivity_graph = None  # set later by MapData
 
         self._set_default_grids()
