@@ -156,7 +156,7 @@ def fix_map_ramps(bot: BotAI):
 
 def get_sets_with_mutual_elements(list_mdchokes: List[CMapChoke],
                                   area: Optional[Union[MDRamp, VisionBlockerArea]] = None,
-                                  base_choke: CMapChoke = None) -> List[List]:
+                                  base_choke: CMapChoke = None) -> List[int]:
     li = []
     if area:
         s1 = area.points
