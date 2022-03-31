@@ -1,7 +1,10 @@
 import random
 from typing import List
 
-import sc2
+from sc2.bot_ai import BotAI
+from sc2.data import Race, Difficulty
+from sc2.main import run_game
+from sc2.maps import get as get_map
 from sc2.player import Bot, Computer
 from sc2.position import Point3, Point2
 
@@ -15,7 +18,7 @@ BLUE = Point3((0, 0, 255))
 BLACK = Point3((0, 0, 0))
 
 
-class MATester(sc2.BotAI):
+class MATester(BotAI):
 
     def __init__(self):
         super().__init__()
@@ -151,9 +154,9 @@ class MATester(sc2.BotAI):
 
 def main():
     map = "DeathAuraLE"
-    sc2.run_game(
-            sc2.maps.get(map),
-            [Bot(sc2.Race.Terran, MATester()), Computer(sc2.Race.Zerg, sc2.Difficulty.VeryEasy)],
+    run_game(
+            get_map(map),
+            [Bot(Race.Terran, MATester()), Computer(Race.Zerg, Difficulty.VeryEasy)],
             realtime=True
     )
 
