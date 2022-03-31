@@ -72,7 +72,6 @@ class MapData:
         self.overlord_spots: list = []
         self.resource_blockers = [Point2((m.position[0], m.position[1])) for m in self.bot.all_units if
                                   any(x in m.name.lower() for x in {"rich", "450"})]
-        self.overlapping_choke_ids = None
 
         pathing_grid = np.fmax(self.path_arr, self.placement_arr)
         self.c_ext_map = CMapInfo(pathing_grid.T, self.terrain_height.T, self.bot.game_info.playable_area,
@@ -471,7 +470,7 @@ class MapData:
         return set([(indices[0][i], indices[1][i]) for i in range(len(indices[0]))])
 
     @staticmethod
-    def points_to_indices(points: Set[Tuple[float, float]]) -> Tuple[np.ndarray, np.ndarray]:
+    def points_to_indices(points: Union[Set[Point2], List[Point2]]) -> Tuple[np.ndarray, np.ndarray]:
         """
         :rtype: Tuple[numpy.ndarray, numpy.ndarray]
 
@@ -481,7 +480,7 @@ class MapData:
         return np.array([p[0] for p in points]), np.array([p[1] for p in points])
 
     def points_to_numpy_array(
-            self, points: Union[Set[Tuple[int64, int64]], List[Point2], Set[Point2]]
+            self, points: Union[Set[Point2], List[Point2]]
             , default_value: int = 1) -> ndarray:
         """
         :rtype: numpy.ndarray
@@ -717,7 +716,6 @@ class MapData:
             if region.is_inside_point(point):
                 return region
 
-    """ longest map compile is 1.9 s """
     """Compile methods"""
 
     @staticmethod
@@ -759,10 +757,10 @@ class MapData:
         self._set_map_ramps()
 
         self._clean_polys()
-
         self._calc_chokes()
         for poly in self.polygons:
             poly.calc_areas()
+
         for ramp in self.map_ramps:
             ramp.set_regions()
 
@@ -816,21 +814,17 @@ class MapData:
         # compute VisionBlockerArea
 
         for i in range(len(self.vision_blockers_labels)):
-
-            indices = np.where(self.vision_blockers_grid == i)
-            points = self.indices_to_points(indices)
-            vb_arr = self.points_to_numpy_array(points)
-            if len(indices[0]):
-                vba = VisionBlockerArea(map_data=self, array=vb_arr)
-                if vba.area <= 200:
-                    self.map_vision_blockers.append(vba)
-                    areas = self.where_all(vba.center)
-                    if len(areas) > 0:
-                        for area in areas:
-                            if area is not vba:
-                                vba.areas.append(area)
-                else:
-                    self.polygons.pop(self.polygons.index(vba))
+            vb_arr = np.where(self.vision_blockers_grid == i, 1, 0)
+            vba = VisionBlockerArea(map_data=self, array=vb_arr)
+            if vba.area <= 200:
+                self.map_vision_blockers.append(vba)
+                areas = self.where_all(vba.center)
+                if len(areas) > 0:
+                    for area in areas:
+                        if area is not vba:
+                            vba.areas.append(area)
+            else:
+                self.polygons.pop(self.polygons.index(vba))
 
     def _calc_chokes(self) -> None:
         # compute ChokeArea

@@ -54,13 +54,8 @@ class RawChoke(ChokeArea):
         self.id = raw_choke.id
         self.md_pl_choke = raw_choke
 
-
-        self.side_a = Point2((int(round(self.main_line[0][0])), int(round(self.main_line[0][1]))))
-        self.side_b = Point2((int(round(self.main_line[1][0])), int(round(self.main_line[1][1]))))
-
-        self.points.add(self.side_a)
-        self.points.add(self.side_b)
-        self.indices = self.map_data.points_to_indices(self.points)
+        self.side_a = Point2((int(self.main_line[0][0]), int(self.main_line[0][1])))
+        self.side_b = Point2((int(self.main_line[1][0]), int(self.main_line[1][1])))
 
     def __repr__(self) -> str:  # pragma: no cover
         return f"<[{self.id}]RawChoke[size={self.area}]>"
@@ -79,7 +74,6 @@ class MDRamp(ChokeArea):
         self.is_ramp = True
         self.ramp = ramp
         self.offset = Point2((0.5, 0.5))
-        self.points.add(Point2(self.middle_walloff_depot.rounded))
         self._set_sides()
 
     def _set_sides(self):
@@ -237,11 +231,6 @@ class VisionBlockerArea(ChokeArea):
             self.side_b = int(round((res[0] + org[0]) / 2)), int(round((res[1] + org[1]) / 2))
         else:
             self.side_b = int(round((self.right[0] + self.left[0]) / 2)), int(round((self.right[1] + self.left[1]) / 2))
-        points = list(self.points)
-        points.append(self.side_a)
-        points.append(self.side_b)
-        self.points = set([Point2((int(p[0]), int(p[1]))) for p in points])
-        self.indices = self.map_data.points_to_indices(self.points)
 
     def __repr__(self):  # pragma: no cover
         return f"<VisionBlockerArea[size={self.area}]: {self.regions}>"

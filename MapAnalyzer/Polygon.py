@@ -79,12 +79,10 @@ class Polygon:
     def __init__(self, map_data: "MapData", array: ndarray) -> None:  # pragma: no cover
         self.map_data = map_data
         self.array = array
-        self.indices = np.where(self.array == 1)
-        self._clean_points = self.map_data.indices_to_points(self.indices)
-        self.points = set([Point2(p) for p in
-                           self._clean_points])  # this is to serve data for map data compile,  the accurate
-        # calculation will be done on _set_points
-        self._set_points()
+        self.extended_array = array.copy()
+        # Include the perimeter in the points
+        perimeter = self.perimeter
+        self.extended_array[perimeter[:, 0], perimeter[:, 1]] = 1
         self.id = None  # TODO
         self.is_choke = False
         self.is_ramp = False
@@ -96,27 +94,19 @@ class Polygon:
 
     @property
     def top(self):
-        return max(self.points, key=lambda x: (x[1], 0))
+        return max(self.points, key=lambda x: x[1])
 
     @property
     def bottom(self):
-        return min(self.points, key=lambda x: (x[1], 0))
+        return min(self.points, key=lambda x: x[1])
 
     @property
     def right(self):
-        return max(self.points, key=lambda x: (x[0], 0))
+        return max(self.points, key=lambda x: x[0])
 
     @property
     def left(self):
-        return min(self.points, key=lambda x: (x[0], 0))
-
-    def _set_points(self):
-
-        points = [p for p in self._clean_points]
-        points.extend(self.corner_points)
-        points.extend(self.perimeter_points)
-        self.points = set([Point2((int(p[0]), int(p[1]))) for p in points])
-        self.indices = self.map_data.points_to_indices(self.points)
+        return min(self.points, key=lambda x: x[0])
 
     @property
     def buildables(self) -> Buildables:
@@ -148,10 +138,10 @@ class Polygon:
         # This is called by MapData, at a specific point in the sequence of compiling the map
         # this method uses where_all which means
         # it should be called at the end of the map compilation when areas are populated
-        points = self.perimeter_points
+
         areas = self.areas
-        for point in points:
-            point = int(point[0]), int(point[1])
+        for point in self.perimeter:
+            point = point[0], point[1]
             new_areas = self.map_data.where_all(point)
             if self in new_areas:
                 new_areas.pop(new_areas.index(self))
@@ -174,13 +164,13 @@ class Polygon:
 
     @property
     @lru_cache()
-    def nodes(self) -> List[Point2]:
+    def points(self) -> Set[Point2]:
         """
 
-        List of :class:`.Point2`
+        Set of :class:`.Point2`
 
         """
-        return [p for p in self.points]
+        return {Point2(p) for p in np.argwhere(self.extended_array == 1)}
 
     @property
     @lru_cache()
@@ -224,12 +214,6 @@ class Polygon:
         return points
 
     @property
-    def clean_points(self) -> List[Tuple[int64, int64]]:
-        # For internal usage
-
-        return list(self._clean_points)  # needs to be array-like for numpy calculations
-
-    @property
     def center(self) -> Point2:
         """
 
@@ -241,56 +225,51 @@ class Polygon:
 
         """
 
-        cm = self.map_data.closest_towards_point(points=self.clean_points, target=center_of_mass(self.array))
+        cm = self.map_data.closest_towards_point(points=list(self.points), target=center_of_mass(self.array))
         return cm
 
-    @lru_cache()
     def is_inside_point(self, point: Union[Point2, tuple]) -> bool:
         """
 
         Query via Set(Point2)  ''fast''
 
         """
-        if isinstance(point, Point2):
-            point = point.rounded
-        if point in self.points:
-            return True
+        test = int(point[0]), int(point[1])
+        shape = self.extended_array.shape
+        if 0 < test[0] < shape[0] and 0 < test[1] < shape[1]:
+            # Return python bool instead of numpy bool
+            return_val = True if self.extended_array[test] == 1 else False
+            return return_val
         return False
-
-    @lru_cache()
-    def is_inside_indices(
-            self, point: Union[Point2, tuple]
-    ) -> bool:  # pragma: no cover
-        """
-
-        Query via 2d np.array  ''slower''
-
-        """
-        if isinstance(point, Point2):
-            point = point.rounded
-        return point[0] in self.indices[0] and point[1] in self.indices[1]
 
     @property
     def perimeter(self) -> np.ndarray:
         """
-
-        The perimeter is interpolated between inner and outer cell-types using broadcasting
-
+        Find all the individual points that surround the area
         """
-        isolated_region = self.array
-        xx, yy = np.gradient(isolated_region)
-        edge_indices = np.argwhere(xx ** 2 + yy ** 2 > 0.1)
+        d1 = np.diff(self.array, axis=0, prepend=0)
+        d2 = np.diff(self.array, axis=1, prepend=0)
+        d1_pos = np.argwhere(d1 > 0) - [1, 0]
+        d1_neg = np.argwhere(d1 < 0)
+        d2_pos = np.argwhere(d2 > 0) - [0, 1]
+        d2_neg = np.argwhere(d2 < 0)
+        perimeter_arr = np.zeros(self.array.shape)
+        perimeter_arr[d1_pos[:, 0], d1_pos[:, 1]] = 1
+        perimeter_arr[d1_neg[:, 0], d1_neg[:, 1]] = 1
+        perimeter_arr[d2_pos[:, 0], d2_pos[:, 1]] = 1
+        perimeter_arr[d2_neg[:, 0], d2_neg[:, 1]] = 1
+
+        edge_indices = np.argwhere(perimeter_arr != 0)
         return edge_indices
 
     @property
-    def perimeter_points(self) -> Set[Tuple[int64, int64]]:
+    def perimeter_points(self) -> Set[Point2]:
         """
 
         Useful method for getting  perimeter points
 
         """
-        li = [Point2((int(p[0]), int(p[1]))) for p in self.perimeter]
-        return set(li)
+        return {Point2((p[0], p[1])) for p in self.perimeter}
 
     @property
     def area(self) -> int:

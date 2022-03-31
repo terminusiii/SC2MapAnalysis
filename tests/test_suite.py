@@ -70,7 +70,6 @@ class TestSanity:
         for polygon in map_data.polygons:
             polygon.plot(testing=True)
             assert (polygon not in polygon.areas)
-            assert (polygon.nodes == list(polygon.points))
             assert (polygon.width > 0)
             assert (polygon.area > 0)
             assert (polygon.is_inside_point(polygon.center))
@@ -111,8 +110,6 @@ class TestSanity:
                 assert (choke in map_data.where_all(p)), \
                     logger.error(f"<Map : {map_data}, Choke : {choke},"
                                  f" where :  {map_data.where(choke.center)} point : {choke.center}>")
-            assert (choke.side_a in choke.points), f"Choke {choke}, side a {choke.side_a} is not in choke points"
-            assert (choke.side_b in choke.points), f"Choke {choke}, side b {choke.side_b} is not in choke points"
 
     def test_vision_blockers(self, map_data: MapData) -> None:
         all_chokes = map_data.map_chokes
