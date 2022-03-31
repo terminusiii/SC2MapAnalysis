@@ -80,9 +80,9 @@ class Polygon:
         self.map_data = map_data
         self.array = array
         self.extended_array = array.copy()
-        # Include the perimeter in the points
-        perimeter = self.perimeter
-        self.extended_array[perimeter[:, 0], perimeter[:, 1]] = 1
+        # Include the outer_perimeter in the points
+        outer_perimeter = self.outer_perimeter
+        self.extended_array[outer_perimeter[:, 0], outer_perimeter[:, 1]] = 1
         self.id = None  # TODO
         self.is_choke = False
         self.is_ramp = False
@@ -140,7 +140,7 @@ class Polygon:
         # it should be called at the end of the map compilation when areas are populated
 
         areas = self.areas
-        for point in self.perimeter:
+        for point in self.outer_perimeter:
             point = point[0], point[1]
             new_areas = self.map_data.where_all(point)
             if self in new_areas:
@@ -195,7 +195,7 @@ class Polygon:
         Lazy width calculation,   will be approx 0.5 < x < 1.5 of real width
 
         """
-        pl = list(self.perimeter_points)
+        pl = list(self.outer_perimeter_points)
         s1 = min(pl)
         s2 = max(pl)
         x1, y1 = s1[0], s1[1]
@@ -214,6 +214,7 @@ class Polygon:
         return points
 
     @property
+    @lru_cache()
     def center(self) -> Point2:
         """
 
@@ -243,7 +244,7 @@ class Polygon:
         return False
 
     @property
-    def perimeter(self) -> np.ndarray:
+    def outer_perimeter(self) -> np.ndarray:
         """
         Find all the individual points that surround the area
         """
@@ -263,6 +264,37 @@ class Polygon:
         return edge_indices
 
     @property
+    def outer_perimeter_points(self) -> Set[Point2]:
+        """
+
+        Useful method for getting  perimeter points
+
+        """
+        return {Point2((p[0], p[1])) for p in self.outer_perimeter}
+
+    @property
+    @lru_cache()
+    def perimeter(self) -> np.ndarray:
+        """
+        Find all the individual points that surround the area
+        """
+        d1 = np.diff(self.array, axis=0, prepend=0)
+        d2 = np.diff(self.array, axis=1, prepend=0)
+        d1_pos = np.argwhere(d1 > 0)
+        d1_neg = np.argwhere(d1 < 0) - [1, 0]
+        d2_pos = np.argwhere(d2 > 0)
+        d2_neg = np.argwhere(d2 < 0) - [0, 1]
+        perimeter_arr = np.zeros(self.array.shape)
+        perimeter_arr[d1_pos[:, 0], d1_pos[:, 1]] = 1
+        perimeter_arr[d1_neg[:, 0], d1_neg[:, 1]] = 1
+        perimeter_arr[d2_pos[:, 0], d2_pos[:, 1]] = 1
+        perimeter_arr[d2_neg[:, 0], d2_neg[:, 1]] = 1
+
+        edge_indices = np.argwhere(perimeter_arr != 0)
+        return edge_indices
+
+    @property
+    @lru_cache()
     def perimeter_points(self) -> Set[Point2]:
         """
 

@@ -74,7 +74,7 @@ class TestSanity:
             assert (polygon.area > 0)
             assert (polygon.is_inside_point(polygon.center))
 
-            extended_pts = polygon.points.union(polygon.perimeter_points)
+            extended_pts = polygon.points.union(polygon.outer_perimeter_points)
             assert (polygon.points == extended_pts)
 
             for point in extended_pts:

@@ -130,7 +130,7 @@ class MDRamp(ChokeArea):
 
         """
         return min(region_list,
-                   key=lambda area: min(self.map_data.distance(area.center, point) for point in self.perimeter_points))
+                   key=lambda area: min(self.map_data.distance(area.center, point) for point in self.outer_perimeter_points))
 
     def set_regions(self):
         """
@@ -142,7 +142,7 @@ class MDRamp(ChokeArea):
 
         """
         from MapAnalyzer.Region import Region
-        for p in self.perimeter_points:
+        for p in self.outer_perimeter_points:
             areas = self.map_data.where_all(p)
             for area in areas:
                 # edge case  = its a VisionBlockerArea (and also on the perimeter) so we grab the touching Regions
