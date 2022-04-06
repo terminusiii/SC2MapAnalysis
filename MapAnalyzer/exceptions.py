@@ -7,8 +7,10 @@ class CustomDeprecationWarning(BaseException):
         self.new = newarg
 
     def __str__(self) -> str:
-        return f"[DeprecationWarning] Passing `{self.old}` argument is deprecated," \
-               f" and will have no effect,\nUse `{self.new}` instead"
+        return (
+            f"[DeprecationWarning] Passing `{self.old}` argument is deprecated,"
+            f" and will have no effect,\nUse `{self.new}` instead"
+        )
 
 
 class PatherNoPointsException(BaseException):
@@ -18,9 +20,11 @@ class PatherNoPointsException(BaseException):
         self.goal = goal
 
     def __str__(self) -> str:
-        return f"[PatherNoPointsException]" \
-            f"\nExpected: Start (pointlike), Goal (pointlike)," \
+        return (
+            f"[PatherNoPointsException]"
+            f"\nExpected: Start (pointlike), Goal (pointlike),"
             f"\nGot: Start {self.start}, Goal {self.goal}."
+        )
 
 
 class OutOfBoundsException(BaseException):
