@@ -2,7 +2,6 @@ import math
 import time
 from itertools import chain
 from functools import lru_cache
-from os import mkdir, path
 from typing import Dict, List, Optional, Set, Tuple, Union
 
 import numpy as np
@@ -944,11 +943,6 @@ class MapData:
             vba = VisionBlockerArea(map_data=self, array=vb_arr)
             if vba.area <= 200:
                 self.map_vision_blockers.append(vba)
-                areas = self.where_all(vba.center)
-                if len(areas) > 0:
-                    for area in areas:
-                        if area is not vba:
-                            vba.areas.append(area)
             else:
                 self.polygons.pop(self.polygons.index(vba))
 

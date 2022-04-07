@@ -160,28 +160,6 @@ class MDRamp(ChokeArea):
              Make this a private method
 
         """
-        from MapAnalyzer.Region import Region
-
-        for p in self.outer_perimeter_points:
-            areas = self.map_data.where_all(p)
-            for area in areas:
-                # edge case  = its a VisionBlockerArea (and also on the perimeter) so we grab the touching Regions
-                if isinstance(area, VisionBlockerArea):
-                    for sub_area in area.areas:
-                        # add it to our Areas
-                        if isinstance(sub_area, Region) and sub_area not in self.areas:
-                            self.areas.append(sub_area)
-                        # add ourselves to it's Areas
-                        if isinstance(sub_area, Region) and self not in sub_area.areas:
-                            sub_area.areas.append(self)
-
-                # standard case
-                if isinstance(area, Region) and area not in self.areas:
-                    self.areas.append(area)
-                    # add ourselves to the Region Area's
-                if isinstance(area, Region) and self not in area.areas:
-                    area.areas.append(self)
-
         if len(self.regions) < 2:
             region_list = list(self.map_data.regions.values())
             region_list.remove(self.regions[0])
