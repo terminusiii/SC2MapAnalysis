@@ -319,13 +319,14 @@ class Polygon:
         return {Point2((p[0], p[1])) for p in self.perimeter}
 
     @property
-    def area(self) -> int:
+    @lru_cache()
+    # type hinting complains if ndarray is not here, but always returns a numpy.int32
+    def area(self) -> Union[int, np.ndarray]:
         """
-
         Sum of all points
 
         """
-        return len(self.points)
+        return np.sum(self.extended_array)
 
     def __repr__(self) -> str:
         return f"<Polygon[size={self.area}]: {self.areas}>"
