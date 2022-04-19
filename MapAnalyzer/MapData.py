@@ -885,7 +885,8 @@ class MapData:
         # some maps has no vision blockers
         if len(vb_points):
             vision_blockers_indices = self.points_to_indices(vb_points)
-            vision_blockers_array = np.zeros(self.region_grid.shape, dtype="int")
+            rows, cols = self.path_arr.shape
+            vision_blockers_array = np.zeros((cols, rows), dtype="int")
             vision_blockers_array[vision_blockers_indices] = 1
             vb_labeled_array, vb_num_features = ndlabel(vision_blockers_array)
             self.vision_blockers_grid = vb_labeled_array
@@ -938,7 +939,7 @@ class MapData:
         # compute VisionBlockerArea
 
         for i in range(len(self.vision_blockers_labels)):
-            vb_arr = np.where(self.vision_blockers_grid.T == i, 1, 0)
+            vb_arr = np.where(self.vision_blockers_grid == i, 1, 0)
             vba = VisionBlockerArea(map_data=self, array=vb_arr)
             if vba.area <= 200:
                 self.map_vision_blockers.append(vba)
