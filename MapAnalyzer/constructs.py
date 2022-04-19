@@ -23,7 +23,7 @@ class ChokeArea(Polygon):
     def __init__(self, array: np.ndarray, map_data: "MapData") -> None:
         super().__init__(map_data=map_data, array=array)
         self.main_line = None
-        self.id = 'Unregistered'
+        self.id = "Unregistered"
         self.md_pl_choke = None
         self.is_choke = True
         self.ramp = None
@@ -32,7 +32,11 @@ class ChokeArea(Polygon):
 
     @property
     def corner_walloff(self):
-        return sorted(list(self.points), key=lambda x: x.distance_to_point2(self.center), reverse=True)[:2]
+        return sorted(
+            list(self.points),
+            key=lambda x: x.distance_to_point2(self.center),
+            reverse=True,
+        )[:2]
 
     @lru_cache()
     def same_height(self, p1, p2):
@@ -47,7 +51,9 @@ class RawChoke(ChokeArea):
     Chokes found in the C extension where the terrain generates a choke point
     """
 
-    def __init__(self, array: np.ndarray, map_data: "MapData", raw_choke: CMapChoke) -> None:
+    def __init__(
+        self, array: np.ndarray, map_data: "MapData", raw_choke: CMapChoke
+    ) -> None:
         super().__init__(map_data=map_data, array=array)
 
         self.main_line = raw_choke.main_line
@@ -86,7 +92,7 @@ class MDRamp(ChokeArea):
         next_point = current.rounded
         while next_point in self.points:
             side_a = next_point
-            current = current.offset(perpendicular_dir*step_size)
+            current = current.offset(perpendicular_dir * step_size)
             next_point = current.rounded
 
         self.side_a = side_a
@@ -103,14 +109,22 @@ class MDRamp(ChokeArea):
 
     @property
     def corner_walloff(self):
-        raw_points = sorted(list(self.points), key=lambda x: x.distance_to_point2(self.bottom_center), reverse=True)[:2]
+        raw_points = sorted(
+            list(self.points),
+            key=lambda x: x.distance_to_point2(self.bottom_center),
+            reverse=True,
+        )[:2]
         offset_points = [p.offset(self.offset) for p in raw_points]
         offset_points.extend(raw_points)
         return offset_points
 
     @property
     def middle_walloff_depot(self):
-        raw_points = sorted(list(self.points), key=lambda x: x.distance_to_point2(self.bottom_center), reverse=True)
+        raw_points = sorted(
+            list(self.points),
+            key=lambda x: x.distance_to_point2(self.bottom_center),
+            reverse=True,
+        )
         # TODO  its white board time,  need to figure out some geometric intuition here
         dist = self.map_data.distance(raw_points[0], raw_points[1])
         r = dist ** 0.5
@@ -129,8 +143,13 @@ class MDRamp(ChokeArea):
         Will return the closest region with respect to self
 
         """
-        return min(region_list,
-                   key=lambda area: min(self.map_data.distance(area.center, point) for point in self.outer_perimeter_points))
+        return min(
+            region_list,
+            key=lambda area: min(
+                self.map_data.distance(area.center, point)
+                for point in self.outer_perimeter_points
+            ),
+        )
 
     def set_regions(self):
         """
@@ -142,6 +161,7 @@ class MDRamp(ChokeArea):
 
         """
         from MapAnalyzer.Region import Region
+
         for p in self.outer_perimeter_points:
             areas = self.map_data.where_all(p)
             for area in areas:
@@ -166,7 +186,7 @@ class MDRamp(ChokeArea):
             region_list = list(self.map_data.regions.values())
             region_list.remove(self.regions[0])
             closest_region = self.closest_region(region_list=region_list)
-            assert (closest_region not in self.regions)
+            assert closest_region not in self.regions
             self.areas.append(closest_region)
 
     @property
@@ -223,14 +243,20 @@ class VisionBlockerArea(ChokeArea):
         org = self.top
         pts = [self.bottom, self.right, self.left]
         res = self.map_data.closest_towards_point(points=pts, target=org)
-        self.side_a = int(round((res[0] + org[0]) / 2)), int(round((res[1] + org[1]) / 2))
+        self.side_a = int(round((res[0] + org[0]) / 2)), int(
+            round((res[1] + org[1]) / 2)
+        )
         if res != self.bottom:
             org = self.bottom
             pts = [self.top, self.right, self.left]
             res = self.map_data.closest_towards_point(points=pts, target=org)
-            self.side_b = int(round((res[0] + org[0]) / 2)), int(round((res[1] + org[1]) / 2))
+            self.side_b = int(round((res[0] + org[0]) / 2)), int(
+                round((res[1] + org[1]) / 2)
+            )
         else:
-            self.side_b = int(round((self.right[0] + self.left[0]) / 2)), int(round((self.right[1] + self.left[1]) / 2))
+            self.side_b = int(round((self.right[0] + self.left[0]) / 2)), int(
+                round((self.right[1] + self.left[1]) / 2)
+            )
 
     def __repr__(self):  # pragma: no cover
         return f"<VisionBlockerArea[size={self.area}]: {self.regions}>"

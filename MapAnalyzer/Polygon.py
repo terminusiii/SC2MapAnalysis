@@ -52,11 +52,15 @@ class Buildables:
         parr = self.polygon.map_data.points_to_numpy_array(self.polygon.points)
         # passing safe false to reduce the warnings,
         # which are irrelevant in this case
-        [self.polygon.map_data.add_cost(position=(unit.position.x, unit.position.y), radius=unit.radius * 0.9,
-                                        grid=parr,
-                                        safe=False)
-         for unit in
-         self.polygon.map_data.bot.all_units.not_flying]
+        [
+            self.polygon.map_data.add_cost(
+                position=(unit.position.x, unit.position.y),
+                radius=unit.radius * 0.9,
+                grid=parr,
+                safe=False,
+            )
+            for unit in self.polygon.map_data.bot.all_units.not_flying
+        ]
         buildable_indices = np.where(parr == 1)
         buildable_points = []
         _points = list(self.polygon.map_data.indices_to_points(buildable_indices))
@@ -130,6 +134,7 @@ class Polygon:
 
         """
         from MapAnalyzer.Region import Region
+
         if len(self.areas) > 0:
             return [r for r in self.areas if isinstance(r, Region)]
         return []
@@ -155,6 +160,7 @@ class Polygon:
 
         """
         import matplotlib.pyplot as plt
+
         plt.style.use("ggplot")
 
         plt.imshow(self.array, origin="lower")
@@ -184,7 +190,10 @@ class Polygon:
         from skimage.feature import corner_harris, corner_peaks
 
         array = corner_peaks(
-                corner_harris(self.array), min_distance=self.map_data.corner_distance, threshold_rel=0.01)
+            corner_harris(self.array),
+            min_distance=self.map_data.corner_distance,
+            threshold_rel=0.01,
+        )
         return array
 
     @property
@@ -210,7 +219,11 @@ class Polygon:
         :rtype: List[:class:`.Point2`]
 
         """
-        points = [Point2((int(p[0]), int(p[1]))) for p in self.corner_array if self.is_inside_point(Point2(p))]
+        points = [
+            Point2((int(p[0]), int(p[1])))
+            for p in self.corner_array
+            if self.is_inside_point(Point2(p))
+        ]
         return points
 
     @property
@@ -226,7 +239,9 @@ class Polygon:
 
         """
 
-        cm = self.map_data.closest_towards_point(points=list(self.points), target=center_of_mass(self.array))
+        cm = self.map_data.closest_towards_point(
+            points=list(self.points), target=center_of_mass(self.array)
+        )
         return cm
 
     def is_inside_point(self, point: Union[Point2, tuple]) -> bool:
@@ -304,13 +319,14 @@ class Polygon:
         return {Point2((p[0], p[1])) for p in self.perimeter}
 
     @property
-    def area(self) -> int:
+    @lru_cache()
+    # type hinting complains if ndarray is not here, but always returns a numpy.int32
+    def area(self) -> Union[int, np.ndarray]:
         """
-
         Sum of all points
 
         """
-        return len(self.points)
+        return np.sum(self.extended_array)
 
     def __repr__(self) -> str:
         return f"<Polygon[size={self.area}]: {self.areas}>"
