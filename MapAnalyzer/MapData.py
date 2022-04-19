@@ -90,7 +90,7 @@ class MapData:
         self.map_ramps: list = []  # set later on compile
         self.map_vision_blockers: list = []  # set later on compile
         self.vision_blockers_labels: list = []  # set later on compile
-        self.vision_blockers_grid: list = []  # set later on compile
+        self.vision_blockers_grid: Optional[ndarray] = None  # set later on compile
         self.overlord_spots: list = []
         self.resource_blockers = [
             Point2((m.position[0], m.position[1]))
@@ -574,7 +574,8 @@ class MapData:
                 Will handle safely(by ignoring) points that are ``out of bounds``, without warning
         """
         rows, cols = self.path_arr.shape
-        arr = np.zeros((rows, cols), dtype=np.uint8)
+        # transpose so we can index into it with x, y instead of y, x
+        arr = np.zeros((cols, rows), dtype=np.uint8)
         if isinstance(points, set):
             points = list(points)
 
@@ -903,10 +904,7 @@ class MapData:
             )
         )
         for i, poly in enumerate(self.polygons):
-            if isinstance(poly, Region):
-                self.extended_array_matrix[i] = poly.extended_array
-            else:
-                self.extended_array_matrix[i] = poly.extended_array.T
+            self.extended_array_matrix[i] = poly.extended_array
 
         for poly in self.polygons:
             poly_in_areas: np.ndarray = (
@@ -940,7 +938,7 @@ class MapData:
         # compute VisionBlockerArea
 
         for i in range(len(self.vision_blockers_labels)):
-            vb_arr = np.where(self.vision_blockers_grid == i, 1, 0)
+            vb_arr = np.where(self.vision_blockers_grid.T == i, 1, 0)
             vba = VisionBlockerArea(map_data=self, array=vb_arr)
             if vba.area <= 200:
                 self.map_vision_blockers.append(vba)
