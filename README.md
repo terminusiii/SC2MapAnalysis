@@ -35,7 +35,7 @@ check out his work
 
 More Examples reside in the [Documentation](https://eladyaniv01.github.io/SC2MapAnalysis/)
 
-Example bot usage can be found in `dummybot.py`
+See [here](./examples/MassReaper/README.md) for an example reaper bot showing pathing and influence in action.
 
 Example:
 ```python
