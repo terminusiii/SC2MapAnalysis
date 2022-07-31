@@ -52,5 +52,5 @@ if __name__ == "__main__":
                 bot1,
                 Computer(random_race, Difficulty.CheatVision, ai_build=AIBuild.Macro),
             ],
-            realtime=True,
+            realtime=False,
         )

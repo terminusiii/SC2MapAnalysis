@@ -41,7 +41,8 @@ class Pathing:
         # self.air_grid: np.ndarray = self.map_data.get_clean_air_grid()
 
     def update(self) -> None:
-        self.ground_grid = self.reaper_grid = self.map_data.get_pyastar_grid()
+        self.ground_grid = self.map_data.get_pyastar_grid()
+        self.reaper_grid = self.map_data.get_climber_grid()
         for unit in self.ai.all_enemy_units:
             # checking if a unit is a structure this way is faster then using `if unit.is_structure` :)
             if unit.type_id in ALL_STRUCTURES:
