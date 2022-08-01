@@ -6,17 +6,10 @@ from sc2.position import Point2
 from sc2.unit import Unit
 from sc2.units import Units
 from bot.pathing import Pathing
-from bot.combat.reapers import Reapers
+from bot.reapers import Reapers
 from bot.consts import ATTACK_TARGET_IGNORE
 
 DEBUG: bool = False
-# ling not a worker type, but we respond the same to early lings anyway
-ENEMY_WORKER_TYPES: Set[UnitTypeId] = {
-    UnitTypeId.DRONE,
-    UnitTypeId.PROBE,
-    UnitTypeId.SCV,
-    UnitTypeId.ZERGLING,
-}
 
 
 class MassReaper(BotAI):
@@ -57,8 +50,6 @@ class MassReaper(BotAI):
         await self.reapers.handle_attackers(
             self.units(UnitTypeId.REAPER), attack_target
         )
-        # basic worker rush defence so we don't die in a lame way
-        self._handle_worker_rush()
 
     @property
     def get_attack_target(self) -> Point2:
@@ -343,62 +334,3 @@ class MassReaper(BotAI):
                             w.gather(mf, queue=True)
                         else:
                             w.gather(mf)
-
-    def _handle_worker_rush(self) -> None:
-        """zerglings too !"""
-        # got to a point in time we don't care about this anymore, hopefully there are reapers around
-        # scvs should go idle, at which point the gathering resources logic should kick in
-        if self.time > 200.0 and not self.enemy_committed_worker_rush:
-            self.worker_defence_tags = set()
-            return
-
-        enemy_workers: Units = self.enemy_units.filter(
-            lambda u: u.type_id in ENEMY_WORKER_TYPES
-            and (u.distance_to(self.start_location) < 25.0)
-        )
-        enemy_lings: Units = enemy_workers(UnitTypeId.ZERGLING)
-
-        if enemy_workers.amount > 8 and self.time < 180:
-            self.enemy_committed_worker_rush = True
-
-        # calculate how many workers we should use to defend
-        num_enemy_workers: int = enemy_workers.amount
-        if num_enemy_workers > 0 and self.workers:
-            workers_needed: int = (
-                num_enemy_workers
-                if num_enemy_workers <= 6 and enemy_lings.amount <= 3
-                else self.workers.amount
-            )
-            if len(self.worker_defence_tags) < workers_needed:
-                workers_to_take: int = workers_needed - len(self.worker_defence_tags)
-                unassigned_workers: Units = self.workers.tags_not_in(
-                    self.worker_defence_tags
-                )
-                if workers_to_take > 0:
-                    workers: Units = unassigned_workers.take(workers_to_take)
-                    for worker in workers:
-                        self.worker_defence_tags.add(worker.tag)
-
-        # actually defend if there is a worker threat
-        if len(self.worker_defence_tags) > 0 and self.mineral_field:
-            defence_workers: Units = self.workers.tags_in(self.worker_defence_tags)
-            close_mineral_patch: Unit = self.mineral_field.closest_to(
-                self.start_location
-            )
-            if defence_workers and enemy_workers:
-                for worker in defence_workers:
-                    # in attack range of enemy, prioritise attacking
-                    if (
-                        worker.weapon_cooldown == 0
-                        and enemy_workers.in_attack_range_of(worker)
-                    ):
-                        worker.attack(enemy_workers.closest_to(worker))
-                    # attack the workers
-                    elif worker.weapon_cooldown == 0 and enemy_workers:
-                        worker.attack(enemy_workers.closest_to(worker))
-                    else:
-                        worker.gather(close_mineral_patch)
-            elif defence_workers:
-                for worker in defence_workers:
-                    worker.gather(close_mineral_patch)
-                self.worker_defence_tags = set()

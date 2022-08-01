@@ -1,7 +1,6 @@
 from typing import Optional
 
 import numpy as np
-from bot.combat.base_unit import BaseUnit
 from bot.consts import ALL_STRUCTURES, ATTACK_TARGET_IGNORE
 from bot.pathing import Pathing
 from sc2.bot_ai import BotAI
@@ -13,9 +12,10 @@ from sc2.units import Units
 HEAL_AT_LESS_THAN: float = 0.5
 
 
-class Reapers(BaseUnit):
+class Reapers:
     def __init__(self, ai: BotAI, pathing: Pathing):
-        super().__init__(ai, pathing)
+        self.ai: BotAI = ai
+        self.pathing: Pathing = pathing
 
         self.reaper_grenade_range: float = self.ai.game_data.abilities[
             AbilityId.KD8CHARGE_KD8CHARGE.value
@@ -58,7 +58,7 @@ class Reapers(BaseUnit):
                 else:
                     target = self.pick_enemy_target(close_enemies)
 
-            if target and self.attack_ready(unit, target):
+            if target and unit.weapon_cooldown == 0:
                 unit.attack(target)
                 continue
 
@@ -80,6 +80,27 @@ class Reapers(BaseUnit):
                     unit.move(attack_target)
             else:
                 unit.attack(attack_target)
+
+    def move_to_safety(self, unit: Unit, grid: np.ndarray):
+        """
+        Find a close safe spot on our grid
+        Then path to it
+        """
+        safe_spot: Point2 = self.pathing.find_closest_safe_spot(unit.position, grid)
+        move_to: Point2 = self.pathing.find_path_next_point(
+            unit.position, safe_spot, grid
+        )
+        unit.move(move_to)
+
+    @staticmethod
+    def pick_enemy_target(enemies: Units) -> Unit:
+        """For best enemy target from the provided enemies
+        TODO: If there are multiple units that can be killed in one shot, pick the highest value one
+        """
+        return min(
+            enemies,
+            key=lambda e: (e.health + e.shield, e.tag),
+        )
 
     async def _do_reaper_grenade(self, r: Unit, close_enemies: Units) -> bool:
         """
