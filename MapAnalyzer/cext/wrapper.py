@@ -1,9 +1,17 @@
 import numpy as np
 
 try:
-    from .mapanalyzerext import astar as ext_astar, astar_with_nydus as ext_astar_nydus, get_map_data as ext_get_map_data
+    from .mapanalyzerext import (
+        astar as ext_astar,
+        astar_with_nydus as ext_astar_nydus,
+        get_map_data as ext_get_map_data,
+    )
 except ImportError:
-    from mapanalyzerext import astar as ext_astar, astar_with_nydus as ext_astar_nydus, get_map_data as ext_get_map_data
+    from mapanalyzerext import (
+        astar as ext_astar,
+        astar_with_nydus as ext_astar_nydus,
+        get_map_data as ext_get_map_data,
+    )
 
 from typing import Optional, Tuple, Union, List, Set
 from sc2.position import Point2, Rect
@@ -20,6 +28,7 @@ class CMapChoke:
     min_length minimum distance between the sides of the choke
     id an integer to represent the choke
     """
+
     main_line: Tuple[Tuple[float, float], Tuple[float, float]]
     lines: List[Tuple[Tuple[int, int], Tuple[int, int]]]
     side1: List[Tuple[int, int]]
@@ -49,30 +58,41 @@ class CMapChoke:
 climber_grid_exceptions = {
     "DeathAura": [
         np.meshgrid(range(36, 49), range(118, 127)),
-        np.meshgrid(range(143, 154), range(61, 70))
+        np.meshgrid(range(143, 154), range(61, 70)),
     ]
 }
 
 
 def astar_path(
-        weights: np.ndarray,
-        start: Tuple[int, int],
-        goal: Tuple[int, int],
-        large: bool = False,
-        smoothing: bool = False) -> Union[np.ndarray, None]:
+    weights: np.ndarray,
+    start: Tuple[int, int],
+    goal: Tuple[int, int],
+    large: bool = False,
+    smoothing: bool = False,
+) -> Union[np.ndarray, None]:
     # For the heuristic to be valid, each move must have a positive cost.
     # Demand costs above 1 so floating point inaccuracies aren't a problem
     # when comparing costs
     if weights.min(axis=None) < 1:
-        raise ValueError("Minimum cost to move must be above or equal to 1, but got %f" % (
-            weights.min(axis=None)))
+        raise ValueError(
+            "Minimum cost to move must be above or equal to 1, but got %f"
+            % (weights.min(axis=None))
+        )
     # Ensure start is within bounds.
-    if (start[0] < 0 or start[0] >= weights.shape[0] or
-            start[1] < 0 or start[1] >= weights.shape[1]):
+    if (
+        start[0] < 0
+        or start[0] >= weights.shape[0]
+        or start[1] < 0
+        or start[1] >= weights.shape[1]
+    ):
         raise ValueError(f"Start of {start} lies outside grid.")
     # Ensure goal is within bounds.
-    if (goal[0] < 0 or goal[0] >= weights.shape[0] or
-            goal[1] < 0 or goal[1] >= weights.shape[1]):
+    if (
+        goal[0] < 0
+        or goal[0] >= weights.shape[0]
+        or goal[1] < 0
+        or goal[1] >= weights.shape[1]
+    ):
         raise ValueError(f"Goal of {goal} lies outside grid.")
 
     height, width = weights.shape
@@ -85,25 +105,38 @@ def astar_path(
 
     return path
 
-def astar_path_with_nyduses(weights: np.ndarray,
-        start: Tuple[int, int],
-        goal: Tuple[int, int],
-        nydus_positions: List[Point2],
-        large: bool = False,
-        smoothing: bool = False) -> Union[List[np.ndarray], None]:
+
+def astar_path_with_nyduses(
+    weights: np.ndarray,
+    start: Tuple[int, int],
+    goal: Tuple[int, int],
+    nydus_positions: List[Point2],
+    large: bool = False,
+    smoothing: bool = False,
+) -> Union[List[np.ndarray], None]:
     # For the heuristic to be valid, each move must have a positive cost.
     # Demand costs above 1 so floating point inaccuracies aren't a problem
     # when comparing costs
     if weights.min(axis=None) < 1:
-        raise ValueError("Minimum cost to move must be above or equal to 1, but got %f" % (
-            weights.min(axis=None)))
+        raise ValueError(
+            "Minimum cost to move must be above or equal to 1, but got %f"
+            % (weights.min(axis=None))
+        )
     # Ensure start is within bounds.
-    if (start[0] < 0 or start[0] >= weights.shape[0] or
-            start[1] < 0 or start[1] >= weights.shape[1]):
+    if (
+        start[0] < 0
+        or start[0] >= weights.shape[0]
+        or start[1] < 0
+        or start[1] >= weights.shape[1]
+    ):
         raise ValueError(f"Start of {start} lies outside grid.")
     # Ensure goal is within bounds.
-    if (goal[0] < 0 or goal[0] >= weights.shape[0] or
-            goal[1] < 0 or goal[1] >= weights.shape[1]):
+    if (
+        goal[0] < 0
+        or goal[0] >= weights.shape[0]
+        or goal[1] < 0
+        or goal[1] >= weights.shape[1]
+    ):
         raise ValueError(f"Goal of {goal} lies outside grid.")
 
     height, width = weights.shape
@@ -115,8 +148,16 @@ def astar_path_with_nyduses(weights: np.ndarray,
         nydus_idx = np.ravel_multi_index((int(pos.x), int(pos.y)), (height, width))
         nydus_array[index] = nydus_idx
 
-    path = ext_astar_nydus(weights.flatten(), height, width, nydus_array.flatten(),
-                           start_idx, goal_idx, large, smoothing)
+    path = ext_astar_nydus(
+        weights.flatten(),
+        height,
+        width,
+        nydus_array.flatten(),
+        start_idx,
+        goal_idx,
+        large,
+        smoothing,
+    )
 
     return path
 
@@ -126,7 +167,13 @@ class CMapInfo:
     overlord_spots: Optional[List[Point2]]
     chokes: List[CMapChoke]
 
-    def __init__(self, walkable_grid: np.ndarray, height_map: np.ndarray, playable_area: Rect, map_name: str):
+    def __init__(
+        self,
+        walkable_grid: np.ndarray,
+        height_map: np.ndarray,
+        playable_area: Rect,
+        map_name: str,
+    ):
         """
         walkable_grid and height_map are matrices of type uint8
         """
@@ -138,11 +185,9 @@ class CMapInfo:
         c_start_x = int(playable_area.y)
         c_end_x = int(playable_area.y + playable_area.height)
 
-        self.climber_grid, overlord_data, choke_data = self._get_map_data(walkable_grid, height_map,
-                                                                          c_start_y,
-                                                                          c_end_y,
-                                                                          c_start_x,
-                                                                          c_end_x)
+        self.climber_grid, overlord_data, choke_data = self._get_map_data(
+            walkable_grid, height_map, c_start_y, c_end_y, c_start_x, c_end_x
+        )
 
         # some maps may have places where the current method for building the climber grid isn't correct
         for map_exception in climber_grid_exceptions:
@@ -156,16 +201,28 @@ class CMapInfo:
         self.chokes = []
         id_counter = 0
         for c in choke_data:
-            self.chokes.append(CMapChoke(id_counter, c[0], c[1], c[2], c[3], c[4], c[5]))
+            self.chokes.append(
+                CMapChoke(id_counter, c[0], c[1], c[2], c[3], c[4], c[5])
+            )
             id_counter += 1
 
     @staticmethod
-    def _get_map_data(walkable_grid: np.ndarray, height_map: np.ndarray,
-                      start_y: int,
-                      end_y: int,
-                      start_x: int,
-                      end_x: int):
+    def _get_map_data(
+        walkable_grid: np.ndarray,
+        height_map: np.ndarray,
+        start_y: int,
+        end_y: int,
+        start_x: int,
+        end_x: int,
+    ):
         height, width = walkable_grid.shape
-        return ext_get_map_data(walkable_grid.flatten(), height_map.flatten(), height, width,
-                            start_y, end_y, start_x, end_x)
-
+        return ext_get_map_data(
+            walkable_grid.flatten(),
+            height_map.flatten(),
+            height,
+            width,
+            start_y,
+            end_y,
+            start_x,
+            end_x,
+        )
