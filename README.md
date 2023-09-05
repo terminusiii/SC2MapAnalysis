@@ -9,24 +9,22 @@
 * ![](https://img.shields.io/badge/Documentation-latest-green?style=plastic&logo=appveyor)
    [Documentation](https://eladyaniv01.github.io/SC2MapAnalysis/)
    
-Summary
--------
-A standalone plugin for python SC2 api 
+## Summary
+
+A standalone plugin for python SC2 api for [BurnySc2](https://github.com/BurnySc2/python-sc2/)
 
 
-Why Do we need this ? 
-=====================
+## Why Do we need this ? 
+
 
 This module is inspired by plays like this one [TY map positioning](https://www.youtube.com/watch?v=NUQsAWIBTSk&start=458)
 (notice how the army splits into groups, covering different areas,  tanks are tucked in corners, and so on) 
 
 Hopefully with the interface provided here, you will be able to build plays like that one!
 
-it is meant to be a tool(extension) for [BurnySc2](https://github.com/BurnySc2/python-sc2/)
-
 Thanks A lot to [DrInfy](https://github.com/DrInfy) for solving one of the biggest challenges,  finding rare choke points.
 
-check out his work 
+Check out his work 
 
 * [Sharpy](https://github.com/DrInfy/sharpy-sc2) for rapid bot development.
 
@@ -76,24 +74,85 @@ map_data.plot_map()
 
 
 
-Tested Maps ( [AiArena](https://ai-arena.net/) and [SC2ai](https://sc2ai.net/) ladder map pool) :
+Tested Maps ( [AiArena](https://ai-arena.net/) ) : See `MapAnalyzer/pickle_game_info` for all tested maps.
+
+# Getting Started
+
+## Bot Authors
+
+### Installation
+
+1. Clone or download this repo
+2. Copy the `MapAnalyzer` directory and place it in the root of your bot directory:
+
 ```
-['AbyssalReefLE.xz',
- 'AutomatonLE.xz',
- 'DeathAuraLE.xz', # currently fails on ground pathing 
- 'EphemeronLE.xz',
- 'EternalEmpireLE.xz',
- 'EverDreamLE.xz',
- 'GoldenWallLE.xz',
- 'IceandChromeLE.xz',
- 'NightshadeLE.xz',
- 'PillarsofGoldLE.xz',
- 'SimulacrumLE.xz',
- 'SubmarineLE.xz',
- 'Triton.xz',
- 'WorldofSleepersLE.xz',
- 'ZenLE.xz']
+MyBot
+├── MapAnalyzer
+│ ├── … dependencies for MapAnalyzer
+│ … your other bot files and folders here
 ```
+
+3. MapAnalyzer relies on a pathing extension written in C, this can be built locally or downloaded from github actions.
+If you're on a debian based OS you may be able to skip this step as the repo contains a linux binary already.
+
+#### Method 1: Without build tools
+Check the most recent [BuildCExtension](https://github.com/raspersc2/SC2MapAnalysis/actions/workflows/build_c_extension.yml)
+Github Action workflow. Then scroll to the bottom to download the artifact for your OS (note the repo already contains
+a debia based linux binary:
+
+![image](https://github.com/raspersc2/queens-sc2/assets/63355562/ff865faf-eef6-46de-a98e-6eca7c71c367)
+
+Download the artifact and copy the binary to `MapAnalyzer/cext/`
+
+#### Method 2: Build the project locally
+- Install [Poetry](https://python-poetry.org/) for example: `pip install poetry`
+- In the root folder of this repo run the following:
+`poetry install`
+
+If successful this will compile a binary in the root directory, for example `SC2MapAnalysis/mapanalyzerext.cp311-win_amd64`
+
+Copy the binary to `MapAnalyzer/cext/`
+
+
+## Contributors or to run examples
+
+If you're interested in contributing or would like to run tests then the full dev environment should be setup:
+1. Install [Poetry](https://python-poetry.org/) for example: `pip install poetry`
+2. `poetry install --with dev`
+3. Check example bot:
+`poetry run examples/MassReaper/run.py`
+
+### Run tests
+(github workflow to check this on PR)
+
+`poetry run pytest`
+
+### Autoformatters and linting
+(github workflow to check these on PR)
+
+`black .`
+
+`isort .`
+
+`flake8 .`
+
+### Contributing
+To faciliatate automated releases, [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) guideline should be followed.
+Example git commits:
+
+Feature:
+`feat: find path with multiple grids`
+
+Bugfix:
+`fix: correct weight cost on cliff`
+
+Pull request titles should follow these guidelines too, this enables the automatic release and changelogs to work.
+There is a github workflow to enforce this. 
+
+Example PR title:
+
+`feat: find path with multiple grids`
+
 
 
 
