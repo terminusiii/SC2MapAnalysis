@@ -52,7 +52,7 @@ profile = "black"
 line-length = 88
 
 [tool.semantic_release]
-branch = "dev"
+branch = "master"
 version_variable = "MapAnalyzer/__init__.py:__version__"
 version_toml = "pyproject.toml:tool.poetry.version"
 version_source = "tag"
