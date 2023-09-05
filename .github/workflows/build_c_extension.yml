@@ -1,7 +1,6 @@
+
 name: BuildCExtension
-on:
-  push:
-    branches: [ master, develop, build/poetry-and-ci-workflow ]
+on: [push]
 
 jobs:
   build:
@@ -12,19 +11,24 @@ jobs:
       fail-fast: false
       matrix:
         # TODO: Get this working on ubuntu-latest. Refuses to build, and no idea why
-        #   Left in as doesn't break anything at least
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [windows-latest, macos-latest]
         python-version: ['3.11']
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+      # check-out repo
+      - name: Checkout repository
+        uses: actions/checkout@v3
         with:
-          python-version: ${{ matrix.python-version }}
+          ref: ${{ github.head_ref }}
       # install poetry
       - name: Install poetry
-        run: pipx install poetry==1.6.1
+        run: pipx install poetry==1.5
+      # set-up python with cache
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
       # Install requirements and build extension
       - name: Install requirements and build extension
         run: |
