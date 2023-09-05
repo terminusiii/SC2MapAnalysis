@@ -2,7 +2,7 @@ name: Linting
 
 on:
   pull_request:
-    branches: [ master, develop, build/poetry-and-ci-workflow ]
+    branches: [ master, develop ]
   workflow_call:
 
 jobs:
