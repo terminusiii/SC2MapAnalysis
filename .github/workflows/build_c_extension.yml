@@ -1,7 +1,7 @@
 name: BuildCExtension
 on:
   push:
-    branches: [ master, dev ]
+    branches: [ master, develop ]
 
 jobs:
   build:
