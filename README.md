@@ -93,14 +93,14 @@ MyBot
 ```
 
 3. MapAnalyzer relies on a pathing extension written in C, this can be built locally or downloaded from github actions.
-If you're on a debian based OS you may be able to skip this step as the repo contains a linux binary already.
+If you're on a debian based OS you may be able to skip this step as the repo contains a linux binary already included
+in the `MapAnalyzer` folder.
 
 #### Method 1: Without build tools
-Check the most recent [BuildCExtension](https://github.com/raspersc2/SC2MapAnalysis/actions/workflows/build_c_extension.yml)
-Github Action workflow. Then scroll to the bottom to download the artifact for your OS (note the repo already contains
-a debia based linux binary:
+Check the most recent [BuildCExtension](https://github.com/spudde123/SC2MapAnalysis/actions/workflows/build_c_extension.yml)
+Github Action workflow. Then scroll to the bottom to download the artifact for your OS:
 
-![image](https://github.com/raspersc2/queens-sc2/assets/63355562/ff865faf-eef6-46de-a98e-6eca7c71c367)
+![c_workflow](https://github.com/spudde123/SC2MapAnalysis/assets/63355562/65e08208-8f82-44ee-bf84-3b79d1271d76)
 
 Download the artifact and copy the binary to `MapAnalyzer/cext/`
 
