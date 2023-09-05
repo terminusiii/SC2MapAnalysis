@@ -3,7 +3,7 @@ name: Orchestrator
 on:
   push:
     branches:
-      - dev
+      - develop
 
 jobs:
   call-testing-pipeline:
