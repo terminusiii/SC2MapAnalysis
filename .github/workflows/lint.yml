@@ -7,27 +7,29 @@ on:
 
 jobs:
   Linting:
-    runs-on: ubuntu-latest
-    steps:
-      # check-out repo
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}
-      # install poetry
-      - name: Install poetry
-        run: pipx install poetry==1.6.1
-      # set-up python with cache
-      - name: Setup Python 3.11
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-          cache: 'poetry'
-      # install requirements (including dev dependencies)
-      - name: Install requirements
-        run: poetry install --with dev
-      # run linters
-      - name: Run linters
-        run: |
-          set -o pipefail
-          poetry run make lint
+    build:
+      runs-on: ${{ matrix.os }}
+      strategy:
+        matrix:
+          os: [ ubuntu-latest ]
+          python-version: [ 3.11 ]
+
+      steps:
+        # check-out repo
+        - uses: actions/checkout@v2
+        - name: Set up ${{ matrix.python-version }}
+          uses: actions/setup-python@v2
+          with:
+            python-version: ${{ matrix.python-version }}
+        # install poetry
+        - name: Install poetry
+          run: pipx install poetry==1.6.1
+
+        # install requirements (including dev dependencies)
+        - name: Install requirements
+          run: poetry install --with dev
+        # run linters
+        - name: Run linters
+          run: |
+            set -o pipefail
+            poetry run make lint
