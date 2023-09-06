@@ -1,0 +1,43 @@
+name: BuildCExtension
+on:
+  push:
+    branches: [ master, develop ]
+
+jobs:
+  build:
+    name: Build release
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # TODO: Get this working on ubuntu-latest. Refuses to build, and no idea why
+        os: [windows-latest, macos-latest]
+        python-version: ['3.11']
+
+    steps:
+      # check-out repo
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+      # install poetry
+      - name: Install poetry
+        run: pipx install poetry==1.5
+      # set-up python with cache
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
+      # Install requirements and build extension
+      - name: Install requirements and build extension
+        run: |
+          poetry install --with dev
+          python -c "import shutil, glob, os; [shutil.copy(f, '.') for f in glob.glob('mapanalyzerext*') if not os.path.exists(os.path.join('.', os.path.basename(f)))]"
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.os }}_python${{ matrix.python-version }}
+          path: |
+            ./mapanalyzerext*
+            mapanalyzerext*
