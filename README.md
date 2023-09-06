@@ -11,7 +11,7 @@
    
 ## Summary
 
-A standalone plugin for python SC2 api for [BurnySc2](https://github.com/BurnySc2/python-sc2/)
+A plugin for Python SC2 API [BurnySc2](https://github.com/BurnySc2/python-sc2/)
 
 
 ## Why Do we need this ? 
