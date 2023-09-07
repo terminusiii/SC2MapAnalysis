@@ -1,5 +1,12 @@
 # Changelog
 
+<!--next-version-placeholder-->
+
+## v0.1.0 (2023-09-07)
+### Feature
+* Trigger release test ([`23ba55d`](https://github.com/spudde123/SC2MapAnalysis/commit/23ba55daa36868f46969771bbd74dbce01d86ec1))
+
+
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 ### [0.0.87](https://github.com/spudde123/SC2MapAnalysis/compare/v0.0.86...v0.0.87) (2021-05-04)
