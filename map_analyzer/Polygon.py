@@ -2,7 +2,6 @@ from functools import lru_cache
 from typing import TYPE_CHECKING, List, Set, Union
 
 import numpy as np
-from loguru import logger
 from numpy import ndarray
 from sc2.position import Point2
 from scipy.ndimage import center_of_mass
