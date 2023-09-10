@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "MapAnalyzer"
+name = "map_analyzer"
 version = "0.1.0"
 description = ""
 authors = ["Your Name <you@example.com>"]
@@ -53,7 +53,7 @@ line-length = 88
 
 [tool.semantic_release]
 branch = "master"
-version_variable = "MapAnalyzer/__init__.py:__version__"
+version_variable = "map_analyzer/__init__.py:__version__"
 version_toml = "pyproject.toml:tool.poetry.version"
 version_source = "tag"
 commit_version_number = true # required for version_source = "tag"

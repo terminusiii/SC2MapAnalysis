@@ -6,8 +6,8 @@ from hypothesis import strategies as st
 from loguru import logger
 from sc2.position import Point2
 
-from MapAnalyzer.MapData import MapData
-from MapAnalyzer.utils import get_map_file_list, mock_map_data
+from map_analyzer.MapData import MapData
+from map_analyzer.utils import get_map_file_list, mock_map_data
 from tests.mocksetup import get_map_datas, random
 
 

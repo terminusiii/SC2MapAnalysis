@@ -3,7 +3,7 @@ import os
 import numpy as np
 from sc2.position import Point2, Rect
 
-from MapAnalyzer.cext import CMapInfo, astar_path, astar_path_with_nyduses
+from map_analyzer.cext import CMapInfo, astar_path, astar_path_with_nyduses
 
 
 def load_pathing_grid(file_name):

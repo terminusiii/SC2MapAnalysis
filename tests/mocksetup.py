@@ -7,8 +7,8 @@ import pytest
 from _pytest.logging import caplog as _caplog
 from loguru import logger
 
-from MapAnalyzer.MapData import MapData
-from MapAnalyzer.utils import mock_map_data
+from map_analyzer.MapData import MapData
+from map_analyzer.utils import mock_map_data
 
 # for merging pr from forks,
 # git push <pr-repo.git> <your-local-branch-name>:<pr-branch-name>
@@ -17,7 +17,7 @@ from MapAnalyzer.utils import mock_map_data
 # radon cc . -a -nb  (will dump only complexity score of B and below)
 # monkeytype run monkeytest.py
 # monkeytype list-modules
-# mutmut run --paths-to-mutate MapAnalyzer/MapData.py
+# mutmut run --paths-to-mutate map_analyzer/MapData.py
 
 
 def get_random_point(minx: int, maxx: int, miny: int, maxy: int) -> Tuple[int, int]:
@@ -36,7 +36,7 @@ def caplog(_caplog=_caplog):
 
 
 def get_map_datas() -> Iterable[MapData]:
-    subfolder = "MapAnalyzer"
+    subfolder = "map_analyzer"
     subfolder2 = "pickle_gameinfo"
     subfolder = os.path.join(subfolder, subfolder2)
     if "tests" in os.path.abspath("."):

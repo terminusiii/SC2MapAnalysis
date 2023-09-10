@@ -5,8 +5,8 @@ from _pytest.logging import LogCaptureFixture
 from _pytest.python import Metafunc
 from sc2.position import Point2
 
-from MapAnalyzer import Region
-from MapAnalyzer.destructibles import (
+from map_analyzer import Region
+from map_analyzer.destructibles import (
     destructable_2x2,
     destructable_2x4,
     destructable_2x6,
@@ -19,8 +19,8 @@ from MapAnalyzer.destructibles import (
     destructable_BLUR,
     destructable_ULBR,
 )
-from MapAnalyzer.MapData import MapData
-from MapAnalyzer.utils import get_map_file_list, get_map_files_folder, mock_map_data
+from map_analyzer.MapData import MapData
+from map_analyzer.utils import get_map_file_list, get_map_files_folder, mock_map_data
 from tests.mocksetup import get_map_datas, get_random_point, logger
 
 logger = logger
