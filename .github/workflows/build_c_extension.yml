@@ -11,8 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # TODO: Get this working on ubuntu-latest. Refuses to build, and no idea why
-        os: [windows-latest, macos-latest]
+        os: [windows-latest, macos-latest, ubuntu-latest]
         python-version: ['3.11']
 
     steps:
