@@ -8,7 +8,7 @@ from setuptools.command.build_ext import build_ext
 extensions = [
     Extension(
         "mapanalyzerext",
-        sources=["MapAnalyzer/cext/src/ma_ext.c"],
+        sources=["extension/ma_ext.c"],
         include_dirs=[numpy.get_include()],
     ),
 ]

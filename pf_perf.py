@@ -5,8 +5,8 @@ import random
 import time
 from typing import List
 
-from MapAnalyzer.MapData import MapData
-from MapAnalyzer.utils import import_bot_instance
+from map_analyzer.MapData import MapData
+from map_analyzer.utils import import_bot_instance
 
 
 def get_random_point(minx, maxx, miny, maxy):
@@ -18,7 +18,7 @@ def get_map_file_list() -> List[str]:
     easy way to produce less than all maps,
     for example if we want to test utils, we only need one MapData object
     """
-    subfolder = "MapAnalyzer"
+    subfolder = "map_analyzer"
     subfolder2 = "pickle_gameinfo"
     subfolder = os.path.join(subfolder, subfolder2)
     folder = os.path.abspath(".")

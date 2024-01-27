@@ -7,30 +7,10 @@
 
 //The difference between levels of terrain in height maps
 #define LEVEL_DIFFERENCE 16
-
 #define SQRT2 1.41421f
-
 #define HEADER_SIZE sizeof(size_t)
-
-static inline int max_int(int i, int j)
-{
-    return i < j ? j : i;
-}
-
-static inline int min_int(int i, int j)
-{
-    return i >= j ? j : i;
-}
-
-static inline float max_float(float i, float j)
-{
-    return i < j ? j : i;
-}
-
-static inline float min_float(float i, float j)
-{
-    return i >= j ? j : i;
-}
+#define MA_MIN(a,b) ((a) < (b) ? (a) : (b))
+#define MA_MAX(a,b) ((a) > (b) ? (a) : (b))
 
 
 /*
@@ -564,7 +544,7 @@ static inline float find_min(float *arr, int length)
     float minimum = HUGE_VALF;
     for (int i = 0; i < length; ++i)
     {
-        minimum = min_float(arr[i], minimum);
+        minimum = MA_MIN(arr[i], minimum);
     }
     return minimum;
 }
@@ -576,12 +556,12 @@ heuristic remains consistent.
 */
 static inline float distance_heuristic(int x0, int y0, int x1, int y1, float baseline)
 {
-    return baseline*(max_int(abs(x0 - x1), abs(y0 - y1)) + (SQRT2 - 1) * min_int(abs(x0 - x1), abs(y0 - y1)));
+    return baseline*(MA_MAX(abs(x0 - x1), abs(y0 - y1)) + (SQRT2 - 1) * MA_MIN(abs(x0 - x1), abs(y0 - y1)));
 }
 
 static inline float euclidean_distance(int x0, int y0, int x1, int y1)
 {
-    return (float)sqrt((double)((x0 - x1)*(x0 - x1) + (y0 - y1)*(y0 - y1)));
+    return sqrtf((float)((x0 - x1)*(x0 - x1) + (y0 - y1)*(y0 - y1)));
 }
 
 enum Directions {
@@ -844,7 +824,7 @@ static int run_pathfind_with_nydus(MemoryArena *arena, float *weights, int* path
 
     NydusInfo closest_nydus_to_goal = get_node_nydus_info(nydus_nodes, nydus_count, goal, w, weight_baseline);
 
-    int *nydus_nbrs = PushToMemoryArena(arena, max_int(1, nydus_count - 1)*sizeof(int));
+    int *nydus_nbrs = PushToMemoryArena(arena, MA_MAX(1, nydus_count - 1)*sizeof(int));
 
     while (nodes_to_visit->size > 0)
     {
@@ -1498,7 +1478,7 @@ static VecInt* get_nodes_within_distance(MemoryArena *arena, float* weights, int
 
     int nbrs[8];
 
-    VecInt *nodes_within_reach = InitVecInt(arena, min_int(200, (int)(max_distance * max_distance)));
+    VecInt *nodes_within_reach = InitVecInt(arena, MA_MIN(200, (int)(max_distance * max_distance)));
 
     float nbr_costs[8] = { SQRT2, 1.0f, SQRT2, 1.0f, 1.0f, SQRT2, 1.0f, SQRT2 };
 
@@ -1627,9 +1607,9 @@ static void chokes_solve(uint8_t *point_status, float* border_weights, uint8_t *
         VecInt* reachable_borders = get_nodes_within_distance(&state.temp_arena, border_weights, w, h, x, y, choke_border_distance);
 
         int xmin = x;
-        int xmax = min_int(x + (int)choke_distance, x_end);
-        int ymin = max_int(y - (int)choke_distance, y_start);
-        int ymax = min_int(y + (int)choke_distance, y_end);
+        int xmax = MA_MIN(x + (int)choke_distance, x_end);
+        int ymin = MA_MAX(y - (int)choke_distance, y_start);
+        int ymax = MA_MIN(y + (int)choke_distance, y_end);
 
         for (int ynew = ymin; ynew < ymax; ++ynew)
         {

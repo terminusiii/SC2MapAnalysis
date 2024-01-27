@@ -1,7 +1,7 @@
 import doctest
 
-from MapAnalyzer.settings import ROOT_DIR
-from MapAnalyzer.utils import get_map_files_folder
+from map_analyzer.settings import ROOT_DIR
+from map_analyzer.utils import get_map_files_folder
 
 from .mocksetup import *
 
