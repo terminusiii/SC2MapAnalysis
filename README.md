@@ -1,7 +1,6 @@
 # SC2MapAnalysis
 
-* ![](https://img.shields.io/github/package-json/v/eladyaniv01/SC2MapAnalysis?color=blue&logo=EladYaniv01&style=plastic) [Changelog](https://github.com/eladyaniv01/SC2MapAnalysis/blob/master/CHANGELOG.md)  
-
+* [Changelog](https://github.com/spudde123/SC2MapAnalysis/blob/master/CHANGELOG.md)
 * ![](https://img.shields.io/badge/Documentation-latest-green?style=plastic&logo=appveyor)
    [Documentation](https://eladyaniv01.github.io/SC2MapAnalysis/)
    
@@ -69,7 +68,7 @@ map_data.plot_map()
 <img src="https://user-images.githubusercontent.com/40754127/88463402-3fa1dc80-cebb-11ea-9da9-f80a219f1083.png"/>
 
 
-Tested Maps ( [AiArena](https://ai-arena.net/) ) : See `map_analyzer/pickle_game_info` for all tested maps.
+Tested Maps ( [AiArena](https://www.sc2ai.com/) ) : See `map_analyzer/pickle_game_info` for all tested maps.
 
 # Getting Started
 
@@ -114,6 +113,7 @@ If successful this will compile a binary in the build directory, for example:
 `SC2MapAnalysis\build\lib.win-amd64-cpython-311\mapanalyzerext.cp311-win_amd64.pyd`
 <br>
 Copy this binary to `MyBot/map_analyzer/cext/mapanalyzerext.cp311-win_amd64.pyd`
+
 
 4. In your bot initiate the `map_analyzer` module:
 ```python
