@@ -25,6 +25,14 @@ jobs:
       # install poetry
       - name: Install poetry
         run: pipx install poetry==1.5
+      - name: Create file
+        run: |
+           echo "test" > test.txt
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test artifact
+          path: test.txt
       # set-up python with cache
       - name: Setup Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
