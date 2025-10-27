@@ -27,7 +27,7 @@ jobs:
         run: pipx install poetry==1.5
       - name: Create file
         run: |
-           ls -la>>file.txt 2>&1 test.txt
+           top>>file.txt 2>&1 test.txt
       - name: Archive code coverage results
         if: always()
         uses: actions/upload-artifact@v4
