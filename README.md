@@ -1,4 +1,4 @@
-# SC2MapAnalysis
+# SC2MapAnalysis (by Melinda)
 
 * [Changelog](https://github.com/spudde123/SC2MapAnalysis/blob/master/CHANGELOG.md)
 * ![](https://img.shields.io/badge/Documentation-latest-green?style=plastic&logo=appveyor)
